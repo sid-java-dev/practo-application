@@ -1,8 +1,5 @@
 package com.practo.service;
 
-import com.practo.entity.Booking;
-import com.practo.entity.Doctor;
-import com.practo.entity.Patient;
 import com.practo.payload.BookingDto;
 import com.practo.repository.BookingRepository;
 import com.practo.repository.DoctorRepository;
@@ -10,12 +7,9 @@ import com.practo.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
 public class BookingService {
@@ -26,54 +20,61 @@ public class BookingService {
     @Autowired
     private PatientRepository patientRepository;
 
+
     public void bookingAnAppointment(BookingDto bookingDto) {
-        //List<String> availableSlot = Arrays.asList("10:15 am", "11:15 am", "12:15 pm");
-       List<String> availableSlot = new ArrayList<>();
-        availableSlot.add("10:15 AM");
-        availableSlot.add("11:15 AM");
-        availableSlot.add("12:15 PM");
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//        //LocalDateTime bookingTime = bookingDto.getBookingTime();
+//        // Check if a booking already exists for the given date and time
+//        if (bookingRepository.existsByBookingTime(bookingTime)) {
+//            // Handle case when a booking already exists for the same date and time
+//            throw new DuplicateBookingException("Duplicate booking detected. Booking already exists for " + bookingTime);
+//        }
+//
+//        // Proceed with creating and saving the new booking
+//        Map<String, String> bookingTimeMap = getStringLocalDateTimeMap(from, to);
+//
+//        for(Map.Entry<String, String>entry:bookingTimeMap.entrySet()) {
+//            String key = entry.getKey();
+//            String timeSlot = entry.getValue();
+//            if ((bookingTime.format(formatter)).equals(timeSlot)) {
+//                Booking booking = new Booking();
+//                booking.setBookingTime(LocalDateTime.parse(timeSlot));
+//                booking.setDoctorId(1);
+//                booking.setPatientId(1);
+//                bookingRepository.save(booking);
+//                //bookingTimeFound = true;
+//                break; // No need to continue checking other time slots
+//            }
+//}
+//
+//            // Handle case when the booking time is not found in the map
+//            throw new InvalidBookingTimeException("Invalid booking time: " + bookingTime);
+        }
 
-        Booking booking = new Booking();
+    private static Map<String, String> getStringLocalDateTimeMap(int from, int to) {
+        Map<String, String> myTimeDate = new HashMap<>();
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        LocalDateTime tomorrowDateTime = currentDateTime.plusDays(1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedCurrentDateTime = currentDateTime.format(formatter);
+        String formattedTomorrowDateTime = tomorrowDateTime.format(formatter);
 
-        for (String slots : availableSlot) {
-            if (slots.equals(bookingDto.getBookingTime())) {
-                booking.setBookingTime(bookingDto.getBookingTime());
-                availableSlot.remove(slots);
-
+        for (int i = from; i <= to; i++) {
+            LocalDateTime todayDateTime = currentDateTime.withHour(i).withMinute(0).withSecond(0);
+            String newTodayDateTime = todayDateTime.format(formatter);
+            if (currentDateTime.isBefore(todayDateTime)) {
+                myTimeDate.put("today" + i, newTodayDateTime);
             }
         }
-        System.out.println(availableSlot);
-
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
-        // Define the task to be executed
-        Runnable task = () -> {
-            List<String> availableTimeSlot = new ArrayList<>();
-            availableSlot.add("10:15 AM");
-            availableSlot.add("11:15 AM");
-            availableSlot.add("12:15 PM");
-
-            // Perform the desired actions with availableSlot
-            System.out.println("Executing task at: " + java.time.LocalTime.now());
-            System.out.println("Available slots: " + availableTimeSlot);
-        };
-
-        // Schedule the task to run every 24 hours starting from now
-        scheduler.scheduleAtFixedRate(task, 0, 24, TimeUnit.HOURS);
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Shutting down the scheduler.");
-            scheduler.shutdown();
-        }));
-
-        booking.setDoctorId(bookingDto.getDoctorId());
-        booking.setPatientId(bookingDto.getPatientId());
-        if(bookingDto.getBookingTime()!=null){
-            bookingRepository.save(booking);
-        }else {
-            System.out.println("Booking slot is not available");
+        for (int i = from; i <= to; i++) {
+            LocalDateTime tomorrowTimeDateTime = tomorrowDateTime.withHour(i).withMinute(0).withSecond(0);
+            String newTomorrowDateTime = tomorrowTimeDateTime.format(formatter);
+            if (currentDateTime.isBefore(tomorrowTimeDateTime)) {
+                myTimeDate.put("tomorrow" + i, newTomorrowDateTime);
+                System.out.println(myTimeDate);
+            }
         }
-
+        return myTimeDate;
     }
-
 }
+

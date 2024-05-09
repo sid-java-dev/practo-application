@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Slot Selection</title>
+</head>
+<body>
+
+<h2>Select a Date and Time Slot</h2>
+
+<label for="date">Select Date:</label>
+<input type="date" id="date" name="date" th:value="${selectedDate}">
+
+<label for="time">Select Time Slot:</label>
+<select id="time" name="time">
+    <option value="9:00 AM">9:00 AM</option>
+    <option value="10:00 AM">10:00 AM</option>
+    <option value="11:00 AM">11:00 AM</option>
+    <option value="12:00 PM">12:00 PM</option>
+    <option value="1:00 PM">1:00 PM</option>
+    <option value="2:00 PM">2:00 PM</option>
+    <option value="3:00 PM">3:00 PM</option>
+    <option value="4:00 PM">4:00 PM</option>
+    <option value="5:00 PM">5:00 PM</option>
+    <option value="6:00 PM">6:00 PM</option>
+    <option value="7:00 PM">7:00 PM</option>
+    <option value="8:00 PM">8:00 PM</option>
+</select>
+
+<button onclick="bookAppointment()">Book Appointment</button>
+
+<script>
+    function bookAppointment() {
+      const selectedDate = document.getElementById("date").value;
+      const selectedTime = document.getElementById("time").value;
+
+      // Perform further actions, like sending the selected date and time to the server
+      console.log("Selected Date:", selectedDate);
+      console.log("Selected Time:", selectedTime);
+
+      // Example: Send data to server using fetch API
+      fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          date: selectedDate,
+          time: selectedTime,
+        }),
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to book appointment');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Appointment booked successfully:', data);
+        // Optionally, update UI or show confirmation message
+      })
+      .catch(error => {
+        console.error('Error booking appointment:', error);
+        // Optionally, show error message to the user
+      });
+    }
+</script>
+
+</body>
+</html>

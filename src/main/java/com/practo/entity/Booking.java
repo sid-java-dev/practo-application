@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,6 +18,6 @@ public class Booking {
     private long id;
     private long doctorId;
     private long patientId;
-    private String bookingTime;
+    private LocalDateTime bookingTime;
 
 }
